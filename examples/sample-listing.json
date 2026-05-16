@@ -1,0 +1,21 @@
+{
+  "url": "https://www.immoweb.be/fr/annonce/maison/a-vendre/verviers/4800/21538755",
+  "reference": "21538755",
+  "address": "Crapaurue 70, 4800 Verviers",
+  "city": "Verviers",
+  "postal_code": "4800",
+  "price": 74000,
+  "surface": 142,
+  "land_surface": 45,
+  "bedrooms": 4,
+  "bathrooms": 2,
+  "peb": "E",
+  "rc": 428,
+  "year_built": null,
+  "features": ["garage", "terrasse", "elec_conforme", "gaz_condensation", "double_vitrage"],
+  "photos": [
+    "https://media-resize.immowebstatic.be/classifieds/311b518e-b9a2-44e7-996b-5f823da26403/736x736/e2ee911b0814c58f82d6120eb835a22f.jpg"
+  ],
+  "description": "Bâtisse de caractère avec terrasse et garage au centre de Verviers. Élec conforme, chaudière condensation, châssis double vitrage.",
+  "agency": "Nigel Immo"
+}

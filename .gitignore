@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.Python
+build/
+dist/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Outputs locaux (rapports générés)
+output/
+outputs/
+generated/
+renderings/*.png
+renderings/*.jpg
+renderings/*.jpeg
+renderings/*.webp
+*.local.html
+*.local.pdf
+
+# Documents personnels (rapports déjà générés)
+~/Documents/immo-analyzer/
+
+# Logs
+*.log
+
+# Secrets
+*.key
+*.pem
+credentials.json

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Comparaison de biens immobiliers</title>
+<style>
+:root {
+  --ink: #1a1a1a;
+  --paper: #fafaf7;
+  --card: #fff;
+  --accent: #c2410c;
+  --green: #15803d;
+  --red: #b91c1c;
+  --amber: #b45309;
+  --line: #e5e3dc;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 32px 20px 80px;
+  line-height: 1.55;
+}
+.container { max-width: 1280px; margin: 0 auto; }
+header {
+  border-bottom: 3px solid var(--ink);
+  padding-bottom: 20px;
+  margin-bottom: 32px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+h1 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 20px;
+  border: 2px solid var(--line);
+  position: relative;
+}
+.card.winner {
+  border-color: var(--green);
+  box-shadow: 0 4px 16px rgba(21, 128, 61, 0.15);
+}
+.card .rank {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: var(--ink);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.card.winner .rank { background: var(--green); }
+.card .score-big {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  margin: 8px 0;
+}
+.card.winner .score-big { color: var(--green); }
+.card .small { font-size: 12px; color: #555; }
+.card h3 {
+  font-size: 16px;
+  margin: 12px 0 8px;
+}
+.card .price { font-size: 18px; font-weight: 700; color: var(--accent); margin: 4px 0; }
+.card .meta { font-size: 12px; color: #555; }
+
+.comparison-table {
+  background: var(--card);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--line); }
+th { background: #f3f1ea; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+tr.winner-row td { background: rgba(21, 128, 61, 0.08); }
+
+.recommendation {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin: 32px 0;
+}
+.recommendation h2 { font-size: 20px; margin-bottom: 12px; }
+.recommendation p { color: #7c2d12; font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="eyebrow">Comparaison · {{ biens|length }} biens</div>
+  <h1>Tableau comparatif d'investissement</h1>
+  <p style="margin-top:8px; color: #555;">Scoring sur 100 — combinaison prix/m², rendement, état technique, localisation et potentiel.</p>
+</header>
+
+<div class="cards">
+  {% for b in biens %}
+  <div class="card {% if loop.first %}winner{% endif %}">
+    <div class="rank">{{ loop.index|ordinal if loop.index > 1 else "🥇 Gagnant" }}</div>
+    <div class="score-big">{{ b.analyse.score.total }}<span style="font-size:18px; color:#999;">/100</span></div>
+    <div class="small">Score global</div>
+    <h3>{{ b.listing.address or 'Bien ' + loop.index|string }}</h3>
+    <div class="price">{{ b.analyse.prix_negocie|eur }}</div>
+    <div class="meta">
+      {{ b.listing.surface }} m² · {{ b.listing.bedrooms }} ch · PEB {{ b.listing.peb }}
+    </div>
+    <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--line); font-size:13px;">
+      <strong>Rendement net :</strong> {{ b.analyse.scenarios['1_unifamilial'].rendement_net_pct|pct }}<br>
+      <strong>Travaux :</strong> {{ b.analyse.travaux.total_net|eur }}<br>
+      <strong>Mensualité :</strong> {{ b.analyse.financement.mensualite|eur }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="recommendation">
+  <h2>Recommandation</h2>
+  <p>
+    Va sur <strong>{{ biens[0].listing.address }}</strong> en priorité (score {{ biens[0].analyse.score.total }}/100).
+    Il combine le meilleur compromis entre prix, rendement et faisabilité de financement.
+    {% if biens|length > 1 %}En backup : <strong>{{ biens[1].listing.address }}</strong> (score {{ biens[1].analyse.score.total }}/100).{% endif %}
+  </p>
+</div>
+
+<h2 style="font-size:24px; margin-bottom:16px;">Détail du scoring</h2>
+<div class="comparison-table">
+<table>
+  <thead>
+    <tr>
+      <th>Bien</th>
+      <th>Prix /m²</th>
+      <th>Rendement</th>
+      <th>État</th>
+      <th>Localisation</th>
+      <th>Division</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for b in biens %}
+    <tr class="{% if loop.first %}winner-row{% endif %}">
+      <td><strong>{{ b.listing.address|truncate(40) }}</strong></td>
+      <td class="num">{{ b.analyse.score.details.prix_m2 }}/25</td>
+      <td class="num">{{ b.analyse.score.details.rendement }}/30</td>
+      <td class="num">{{ b.analyse.score.details.etat_technique }}/20</td>
+      <td class="num">{{ b.analyse.score.details.localisation }}/15</td>
+      <td class="num">{{ b.analyse.score.details.potentiel_division }}/10</td>
+      <td class="num"><strong>{{ b.analyse.score.total }}/100</strong></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2 style="font-size:24px; margin: 32px 0 16px;">Comparaison financière</h2>
+<div class="comparison-table">
+<table>
+  <thead>
+    <tr>
+      <th>Bien</th>
+      <th>Prix achat</th>
+      <th>Travaux</th>
+      <th>Total invest</th>
+      <th>Loyer mens</th>
+      <th>Mensualité</th>
+      <th>Rend. net</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for b in biens %}
+    <tr class="{% if loop.first %}winner-row{% endif %}">
+      <td>{{ b.listing.address|truncate(35) }}</td>
+      <td class="num">{{ b.analyse.prix_negocie|eur }}</td>
+      <td class="num">{{ b.analyse.travaux.total_net|eur }}</td>
+      <td class="num">{{ b.analyse.investissement_total|eur }}</td>
+      <td class="num">{{ b.analyse.scenarios['1_unifamilial'].loyer_mensuel|eur }}</td>
+      <td class="num">{{ b.analyse.financement.mensualite|eur }}</td>
+      <td class="num">{{ b.analyse.scenarios['1_unifamilial'].rendement_net_pct|pct }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+</div>
+</body>
+</html>

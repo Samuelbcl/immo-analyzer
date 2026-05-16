@@ -1,0 +1,54 @@
+{
+  "name": "immo-analyzer",
+  "version": "1.0.0",
+  "description": "Agent expert en analyse d'investissement immobilier locatif en Belgique. Analyse une annonce Immoweb, chiffre les travaux, calcule le rendement, génère des visualisations IA de rénovation et un rapport complet pour la banque.",
+  "author": {
+    "name": "Samuel Biancola",
+    "email": "samuelbiancola@gmail.com"
+  },
+  "homepage": "https://github.com/samuelbiancola/immo-analyzer",
+  "license": "MIT",
+  "keywords": [
+    "immobilier",
+    "investissement",
+    "wallonie",
+    "verviers",
+    "liege",
+    "immoweb",
+    "renovation",
+    "dall-e",
+    "rendement-locatif"
+  ],
+  "commands": [
+    {
+      "name": "analyse-immo",
+      "description": "Analyse complète d'une annonce Immoweb (prix, travaux, rendement, scénarios)"
+    },
+    {
+      "name": "compare-immo",
+      "description": "Compare 2 à 5 annonces Immoweb dans un tableau de scoring"
+    },
+    {
+      "name": "rapport-banque",
+      "description": "Génère un dossier PDF formel pour rendez-vous bancaire"
+    }
+  ],
+  "skills": [
+    "immo-analyzer"
+  ],
+  "requirements": {
+    "python": ">=3.10",
+    "env_vars": [
+      "OPENAI_API_KEY"
+    ],
+    "pip_packages": [
+      "requests",
+      "beautifulsoup4",
+      "openai",
+      "jinja2",
+      "weasyprint",
+      "python-dotenv",
+      "pillow"
+    ]
+  }
+}

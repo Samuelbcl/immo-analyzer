@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Dossier de financement — {{ listing.address }}</title>
+<style>
+@page {
+  size: A4;
+  margin: 22mm 20mm 25mm 20mm;
+  @bottom-center {
+    content: "Page " counter(page) " sur " counter(pages);
+    font-family: Georgia, serif;
+    font-size: 9pt;
+    color: #555;
+  }
+  @bottom-right {
+    content: "Dossier {{ listing.reference or '—' }}";
+    font-family: Georgia, serif;
+    font-size: 9pt;
+    color: #555;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #1a1a1a;
+  line-height: 1.5;
+  font-size: 10.5pt;
+}
+
+h1, h2, h3 {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+h1 { font-size: 22pt; margin: 0 0 8pt; }
+h2 {
+  font-size: 14pt;
+  margin: 18pt 0 8pt;
+  padding-bottom: 4pt;
+  border-bottom: 1.5pt solid #1a1a1a;
+  page-break-after: avoid;
+}
+h3 { font-size: 11pt; margin: 12pt 0 6pt; }
+
+p { margin: 0 0 8pt; text-align: justify; }
+.muted { color: #555; font-size: 9.5pt; }
+.right { text-align: right; }
+.center { text-align: center; }
+
+.cover {
+  page-break-after: always;
+  text-align: center;
+  padding-top: 80pt;
+}
+.cover .ribbon {
+  font-family: Arial, sans-serif;
+  font-size: 9pt;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #c2410c;
+  margin-bottom: 30pt;
+}
+.cover h1 {
+  font-size: 32pt;
+  margin-bottom: 16pt;
+}
+.cover .address {
+  font-size: 14pt;
+  color: #555;
+  margin-bottom: 60pt;
+}
+.cover .amount-box {
+  display: inline-block;
+  border: 2pt solid #c2410c;
+  padding: 24pt 40pt;
+  margin: 30pt 0;
+}
+.cover .amount-box .label {
+  font-family: Arial, sans-serif;
+  font-size: 9pt;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #c2410c;
+}
+.cover .amount-box .amount {
+  font-size: 36pt;
+  font-weight: 700;
+  margin: 8pt 0;
+}
+.cover .borrower {
+  margin-top: 60pt;
+  font-size: 11pt;
+  color: #1a1a1a;
+}
+.cover .date {
+  margin-top: 40pt;
+  font-size: 10pt;
+  color: #555;
+}
+
+.section { page-break-inside: avoid; }
+.page-break { page-break-before: always; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8pt 0;
+  font-size: 9.5pt;
+  font-family: Arial, sans-serif;
+}
+th {
+  background: #f3f1ea;
+  padding: 6pt 8pt;
+  text-align: left;
+  font-size: 8.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1pt solid #999;
+}
+td {
+  padding: 5pt 8pt;
+  border-bottom: 0.5pt solid #d4d2cd;
+}
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.total td { background: #faf7f0; font-weight: 700; }
+tr.total td.num { color: #c2410c; }
+
+.kpi-row {
+  display: flex;
+  gap: 8pt;
+  margin: 12pt 0;
+}
+.kpi {
+  flex: 1;
+  border: 1pt solid #c4c2bd;
+  border-radius: 6pt;
+  padding: 10pt;
+  text-align: center;
+}
+.kpi .label {
+  font-family: Arial, sans-serif;
+  font-size: 7pt;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 4pt;
+}
+.kpi .value {
+  font-family: Arial, sans-serif;
+  font-size: 14pt;
+  font-weight: 700;
+}
+
+.img-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8pt;
+  margin: 10pt 0;
+}
+.img-grid img {
+  width: 100%;
+  height: 90mm;
+  object-fit: cover;
+  border-radius: 4pt;
+}
+.img-grid .caption {
+  font-size: 9pt;
+  font-style: italic;
+  color: #555;
+  text-align: center;
+  margin-top: 4pt;
+}
+
+.signature-block {
+  margin-top: 50pt;
+  display: flex;
+  gap: 40pt;
+}
+.signature-block .sig {
+  flex: 1;
+  border-top: 1pt solid #1a1a1a;
+  padding-top: 6pt;
+  font-size: 9.5pt;
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="ribbon">Dossier de demande de financement hypothécaire</div>
+  <h1>Acquisition immobilière locative</h1>
+  <div class="address">
+    {{ listing.address }}<br>
+    <span class="muted">{{ listing.surface }} m² · {{ listing.bedrooms }} chambres · PEB {{ listing.peb }}</span>
+  </div>
+
+  <div class="amount-box">
+    <div class="label">Montant emprunté demandé</div>
+    <div class="amount">{{ analyse.financement.montant_emprunte|eur }}</div>
+    <div class="muted">Sur {{ analyse.financement.duree_annees }} ans · taux fixe</div>
+  </div>
+
+  <div class="borrower">
+    <strong>{{ borrower.name or "[Nom de l'emprunteur]" }}</strong><br>
+    {% if borrower.cobor %}<strong>{{ borrower.cobor }}</strong> (co-emprunteur)<br>{% endif %}
+    {% if borrower.profession %}{{ borrower.profession }}{% endif %}
+  </div>
+
+  <div class="date">
+    Dossier établi le {{ borrower.date or '—' }}
+  </div>
+</div>
+
+<!-- SYNTHÈSE -->
+<h2>1. Synthèse exécutive</h2>
+<p>
+  Le présent dossier décrit l'acquisition de la propriété sise au {{ listing.address }}, en vue
+  d'une exploitation locative après remise aux normes énergétiques et de confort. L'opération
+  porte sur un investissement total de <strong>{{ analyse.investissement_total|eur }}</strong>,
+  financé par un apport personnel de <strong>{{ analyse.financement.apport|eur }}</strong>
+  ({{ ((analyse.financement.apport / analyse.investissement_total) * 100)|round(1) }} % du projet)
+  et un emprunt hypothécaire de <strong>{{ analyse.financement.montant_emprunte|eur }}</strong>
+  ({{ analyse.financement.quotite_pct|pct }} de quotité), sur {{ analyse.financement.duree_annees }} ans
+  au taux fixe de {{ (analyse.financement.taux_applique * 100)|round(2) }} %.
+</p>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="label">Investissement total</div><div class="value">{{ analyse.investissement_total|eur }}</div></div>
+  <div class="kpi"><div class="label">Mensualité</div><div class="value">{{ analyse.financement.mensualite|eur }}</div></div>
+  <div class="kpi"><div class="label">Loyer projeté</div><div class="value">{{ analyse.scenarios['1_unifamilial'].loyer_mensuel|eur }}</div></div>
+  <div class="kpi"><div class="label">Rendement net</div><div class="value">{{ analyse.scenarios['1_unifamilial'].rendement_net_pct|pct }}</div></div>
+</div>
+
+<h3>Points forts du dossier</h3>
+<ul>
+  <li>Bien sous-coté de {{ analyse.marche.decote_vs_marche_pct|pct }} par rapport à la moyenne {{ listing.city }} ({{ analyse.marche.prix_moyen_m2|eur }} /m²)</li>
+  <li>Conformité électrique et chauffage gaz à condensation déjà en place (économie ~ 20 000 € de travaux)</li>
+  <li>Ratio d'effort emprunteur : {{ analyse.financement.ratio_effort_pct|pct }} (limite 33 %)</li>
+  <li>Cash-flow locatif net positif dès la 1<sup>re</sup> année de mise en location</li>
+</ul>
+
+<!-- LE BIEN -->
+<h2 class="page-break">2. Description du bien</h2>
+<table>
+  <tbody>
+    <tr><td><strong>Adresse</strong></td><td>{{ listing.address }}</td></tr>
+    <tr><td><strong>Référence Immoweb</strong></td><td>{{ listing.reference }}</td></tr>
+    <tr><td><strong>Surface habitable</strong></td><td>{{ listing.surface }} m²</td></tr>
+    <tr><td><strong>Surface terrain</strong></td><td>{{ listing.land_surface or '—' }} m²</td></tr>
+    <tr><td><strong>Chambres</strong></td><td>{{ listing.bedrooms }}</td></tr>
+    <tr><td><strong>Salles de bains</strong></td><td>{{ listing.bathrooms }}</td></tr>
+    <tr><td><strong>PEB</strong></td><td>{{ listing.peb }} (objectif post-travaux : D)</td></tr>
+    <tr><td><strong>Revenu cadastral</strong></td><td>{{ listing.rc|eur }}</td></tr>
+    <tr><td><strong>Année de construction</strong></td><td>{{ listing.year_built or 'Non renseignée' }}</td></tr>
+    <tr><td><strong>Prix d'appel</strong></td><td>{{ listing.price|eur }}</td></tr>
+    <tr><td><strong>Prix négocié visé</strong></td><td>{{ analyse.prix_negocie|eur }}</td></tr>
+  </tbody>
+</table>
+
+{% if renderings %}
+<h3>Visualisation post-rénovation (projections IA)</h3>
+<p class="muted">Images générées par intelligence artificielle (DALL-E 3) à titre illustratif du parti pris esthétique post-travaux. Ces visualisations ne constituent pas un engagement contractuel.</p>
+<div class="img-grid">
+  {% for r in renderings[:4] %}
+  <div>
+    <img src="file://{{ r.file_abs }}" alt="{{ r.room }}">
+    <div class="caption">{{ r.room|replace('_', ' ')|title }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- PLAN FINANCEMENT -->
+<h2 class="page-break">3. Plan de financement</h2>
+<table>
+  <thead><tr><th>Poste</th><th class="right">Montant</th></tr></thead>
+  <tbody>
+    <tr><td>Prix d'achat</td><td class="num">{{ analyse.frais_acquisition.prix_achat|eur }}</td></tr>
+    <tr><td>Droits d'enregistrement ({{ "3 %" if analyse.params.usage == "habitation_propre_unique" else "12,5 %" }})</td><td class="num">{{ analyse.frais_acquisition.droits_enregistrement|eur }}</td></tr>
+    <tr><td>Frais notaire</td><td class="num">{{ analyse.frais_acquisition.frais_notaire|eur }}</td></tr>
+    <tr><td>Frais d'hypothèque</td><td class="num">{{ analyse.frais_acquisition.frais_hypotheque|eur }}</td></tr>
+    <tr><td>Travaux de rénovation (net primes)</td><td class="num">{{ analyse.travaux.total_net|eur }}</td></tr>
+    <tr class="total"><td>Coût total du projet</td><td class="num">{{ analyse.investissement_total|eur }}</td></tr>
+    <tr><td>− Apport personnel</td><td class="num">{{ analyse.financement.apport|eur }}</td></tr>
+    <tr class="total"><td>Montant à emprunter</td><td class="num">{{ analyse.financement.montant_emprunte|eur }}</td></tr>
+  </tbody>
+</table>
+
+<h3>Caractéristiques de l'emprunt sollicité</h3>
+<table>
+  <tbody>
+    <tr><td>Montant</td><td class="num">{{ analyse.financement.montant_emprunte|eur }}</td></tr>
+    <tr><td>Durée</td><td class="num">{{ analyse.financement.duree_annees }} ans</td></tr>
+    <tr><td>Taux (fixe demandé)</td><td class="num">{{ (analyse.financement.taux_applique * 100)|round(2) }} %</td></tr>
+    <tr><td>Mensualité</td><td class="num">{{ analyse.financement.mensualite|eur }}</td></tr>
+    <tr><td>Quotité</td><td class="num">{{ analyse.financement.quotite_pct|pct }}</td></tr>
+    <tr><td>Ratio d'effort</td><td class="num">{{ analyse.financement.ratio_effort_pct|pct }}</td></tr>
+  </tbody>
+</table>
+
+<!-- BUDGET TRAVAUX -->
+<h2 class="page-break">4. Budget travaux détaillé</h2>
+<table>
+  <thead><tr><th>Poste</th><th class="right">Coût TVAC</th></tr></thead>
+  <tbody>
+    {% for poste, montant in analyse.travaux.postes.items() %}
+    <tr><td>{{ poste|replace('_', ' ')|title }}</td><td class="num">{{ montant|eur }}</td></tr>
+    {% endfor %}
+    <tr><td>Sous-total</td><td class="num">{{ analyse.travaux.sous_total|eur }}</td></tr>
+    <tr><td>Réserve imprévus (15 %)</td><td class="num">{{ analyse.travaux.reserve_imprevus|eur }}</td></tr>
+    <tr><td>Total brut</td><td class="num">{{ analyse.travaux.total_brut|eur }}</td></tr>
+    <tr><td>− Primes Habitation Wallonie estimées</td><td class="num">−{{ analyse.travaux.primes_wallonie_estimees|eur }}</td></tr>
+    <tr class="total"><td>Total net à financer</td><td class="num">{{ analyse.travaux.total_net|eur }}</td></tr>
+  </tbody>
+</table>
+<p class="muted">TVA à 6 % appliquée sur les travaux de rénovation d'un logement de plus de 10 ans (Code TVA art. 1°bis). Devis détaillés de trois entrepreneurs disponibles en annexe.</p>
+
+<!-- TABLEAU AMORTISSEMENT -->
+<h2 class="page-break">5. Tableau d'amortissement</h2>
+<table>
+  <thead><tr><th>An</th><th class="right">Mensualité</th><th class="right">Intérêts annuels</th><th class="right">Capital remboursé</th><th class="right">Capital restant dû</th></tr></thead>
+  <tbody>
+    {% for row in analyse.tableau_amortissement %}
+    <tr>
+      <td>{{ row.annee }}</td>
+      <td class="num">{{ row.mensualite|eur }}</td>
+      <td class="num">{{ row.interets_annuels|eur }}</td>
+      <td class="num">{{ row.capital_rembourse_annuel|eur }}</td>
+      <td class="num">{{ row.capital_restant_du|eur }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- PROJECTION LOCATIVE -->
+<h2 class="page-break">6. Projection locative 10 ans</h2>
+<table>
+  <thead><tr><th>An</th><th class="right">Loyer annuel</th><th class="right">Charges</th><th class="right">Cash-flow net</th><th class="right">Cumul</th></tr></thead>
+  <tbody>
+    {% for row in analyse.projection_locative_10ans %}
+    <tr>
+      <td>{{ row.annee }}</td>
+      <td class="num">{{ row.loyer_annuel|eur }}</td>
+      <td class="num">{{ row.charges_annuelles|eur }}</td>
+      <td class="num">{{ row.cash_flow_net|eur }}</td>
+      <td class="num">{{ row.cumul_cash_flow|eur }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="muted">Hypothèses : loyer indexé 2 %/an (santé), charges indexées 2,5 %/an, vacance locative 8 %, gestion 5 %, entretien 1 % de l'investissement, précompte immobilier sur RC indexé. Retour sur fonds propres estimé : {{ ((analyse.projection_locative_10ans[9].cumul_cash_flow / analyse.financement.apport) * 100)|round(1) }} % sur 10 ans.</p>
+
+<!-- STRESS TESTS -->
+<h2 class="page-break">7. Tests de résistance</h2>
+<p>Le présent dossier intègre plusieurs scénarios de stress pour démontrer la robustesse du projet :</p>
+<table>
+  <thead><tr><th>Scénario</th><th class="right">Mensualité</th><th class="right">Ratio d'effort</th><th class="right">Conclusion</th></tr></thead>
+  <tbody>
+    <tr><td>Référence ({{ (analyse.financement.taux_applique*100)|round(2) }} %)</td><td class="num">{{ analyse.stress_test.base.mensualite|eur }}</td><td class="num">{{ analyse.stress_test.base.ratio_effort|pct }}</td><td>Soutenable</td></tr>
+    <tr><td>Hausse taux +1 pt</td><td class="num">{{ analyse.stress_test.taux_plus_1pct.mensualite|eur }}</td><td class="num">{{ analyse.stress_test.taux_plus_1pct.ratio_effort|pct }}</td><td>{% if analyse.stress_test.taux_plus_1pct.ratio_effort < 38 %}Soutenable{% else %}Tendu{% endif %}</td></tr>
+    <tr><td>Hausse taux +2 pts</td><td class="num">{{ analyse.stress_test.taux_plus_2pct.mensualite|eur }}</td><td class="num">{{ analyse.stress_test.taux_plus_2pct.ratio_effort|pct }}</td><td>{% if analyse.stress_test.taux_plus_2pct.ratio_effort < 42 %}Soutenable{% else %}Limite{% endif %}</td></tr>
+  </tbody>
+</table>
+
+<h3>Garanties proposées</h3>
+<ul>
+  <li>Hypothèque conventionnelle en 1<sup>er</sup> rang sur le bien financé</li>
+  <li>Assurance solde restant dû (taux selon profil emprunteur)</li>
+  <li>Assurance incendie / vol au profit de la banque</li>
+  <li>Domiciliation des loyers possible (à discuter)</li>
+</ul>
+
+<!-- ANNEXES -->
+<h2 class="page-break">8. Annexes — documents fournis</h2>
+<ul>
+  <li>Certificat PEB en cours</li>
+  <li>Certificat de conformité électrique (RGIE)</li>
+  <li>Certificat CERGA gaz</li>
+  <li>Trois fiches de paie récentes</li>
+  <li>Avertissement-extrait de rôle (avis d'imposition)</li>
+  <li>Extrait de compte 3 derniers mois</li>
+  <li>Composition de ménage</li>
+  <li>Carte d'identité (recto-verso)</li>
+  <li>Compromis de vente (à signature)</li>
+  <li>Devis travaux ({{ analyse.travaux.total_brut|eur }})</li>
+  <li>Plans 2D du bien</li>
+</ul>
+
+<div class="signature-block">
+  <div class="sig">L'emprunteur<br><br><br>Date, signature</div>
+  <div class="sig">L'agent bancaire<br><br><br>Date, signature, cachet</div>
+</div>
+
+</body>
+</html>
