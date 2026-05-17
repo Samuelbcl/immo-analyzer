@@ -63,7 +63,7 @@ def parse_meta_fallback(html: str) -> dict:
         text = title["content"].replace("&nbsp;", " ")
         price_m = re.search(r"([\d\s]+)\s*€", text)
         if price_m:
-            data["price"] = int(price_m.group(1).replace(" ", ""))
+            data["price"] = int(re.sub(r"\D", "", price_m.group(1)))
         bed_m = re.search(r"(\d+)\s*chambres?", text)
         if bed_m:
             data["bedrooms"] = int(bed_m.group(1))
@@ -133,7 +133,7 @@ def normalize(raw: dict, meta: dict, url: str) -> dict:
 
         out["price"] = (raw.get("transaction", {}) or {}).get("sale", {}).get("price") or out["price"]
         out["surface"] = prop.get("netHabitableSurface") or out["surface"]
-        out["land_surface"] = prop.get("land", {}).get("surface") or out["land_surface"]
+        out["land_surface"] = (prop.get("land") or {}).get("surface") or out["land_surface"]
         out["bedrooms"] = prop.get("bedroomCount") or out["bedrooms"]
         out["bathrooms"] = prop.get("bathroomCount") or out["bathrooms"]
         out["peb"] = (prop.get("energy", {}) or {}).get("primaryEnergyConsumptionLevel") or out["peb"]
