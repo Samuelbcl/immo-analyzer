@@ -1,0 +1,12 @@
+{
+  "name": "immo-analyzer-local",
+  "owner": {
+    "name": "Samuel Biancola"
+  },
+  "plugins": [
+    {
+      "name": "immo-analyzer",
+      "source": "."
+    }
+  ]
+}
